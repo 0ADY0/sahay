@@ -1,0 +1,49 @@
+/*
+  Design tokens.
+  Calm, clinical, high-contrast. One accent colour (blue) for "where you are",
+  red only for emergencies, amber only for pain / waiting.
+*/
+:root {
+  /* Surfaces */
+  --bg: #f4f3ef;
+  --surface: #ffffff;
+  --surface-sunken: #ebe9e3;
+  --line: #dcd9d1;
+  --line-strong: #b9b5ab;
+
+  /* Text */
+  --ink: #1a1d21;
+  --ink-2: #4a5059;
+  --ink-3: #737a84;
+
+  /* Accent: focus / highlight */
+  --accent: #1d5a85;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3edf4;
+
+  /* Status */
+  --danger: #b3261e;
+  --danger-soft: #fbe9e7;
+  --warn: #9a5b00;
+  --warn-soft: #fdf1dc;
+  --ok: #2a7047;
+  --ok-soft: #e4f2e9;
+
+  /* Type */
+  --font: 'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-xs: 0.8125rem;
+  --fs-sm: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.375rem;
+  --fs-xl: 1.875rem;
+  --fs-2xl: 2.5rem;
+
+  /* Shape & space */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --gap: 16px;
+  --shadow: 0 1px 2px rgba(26, 29, 33, 0.06), 0 2px 8px rgba(26, 29, 33, 0.04);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

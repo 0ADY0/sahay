@@ -1,0 +1,10 @@
+node_modules/
+dist/
+# Copied from node_modules on install (scripts/copy-mediapipe.mjs)
+frontend/public/mediapipe/wasm/
+# Local editor / tool settings
+.claude/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
