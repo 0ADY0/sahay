@@ -35,11 +35,24 @@ export const CONFIRM_MS = 2500;
 // Follow-up questions (e.g. pain level) finish on their own after this long without an answer.
 export const FOLLOWUP_TIMEOUT_MS = 25000;
 
+// Where the calibration dot appears, in % of the screen (x, y). The cursor mode
+// maps the patient's gaze back onto the screen using these same points.
+export const CALIB_POINTS = {
+  center: [50, 52],
+  left: [5, 52],
+  right: [95, 52],
+  up: [50, 14],
+  down: [50, 92],
+};
+
+// Cursor mode: the pointer must rest on an option this long before it counts as "on" it.
+export const HOVER_SETTLE_MS = 250;
+
 // Patient's own messages, added by a caregiver.
 export const MAX_CUSTOM_MESSAGES = 4;
 
 export const DEFAULT_SETTINGS = {
-  mode: 'scan', // 'scan' | 'gaze'
+  mode: 'scan', // 'scan' | 'gaze' | 'cursor'
   scanSpeed: 'normal',
   blinkHold: 'normal',
   voice: true,

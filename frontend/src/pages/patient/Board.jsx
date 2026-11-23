@@ -21,6 +21,7 @@ import { speak } from '../../lib/speech';
 import { useNow } from '../../lib/time';
 import CameraPreview from './CameraPreview';
 import SettingsPanel from './SettingsPanel';
+import GazeCursor from './GazeCursor';
 import { PhaseOverlay, RequestStatus, RestOverlay, Tile } from './BoardParts';
 
 function moveInGrid(i, dir, count) {
@@ -37,7 +38,10 @@ function moveInGrid(i, dir, count) {
 const INSTRUCTIONS = {
   scan: 'When your choice is highlighted, close your eyes until the bar fills, then open them.',
   gaze: 'Look left, right, up or down to move. Close your eyes until the bar fills, then open them to choose.',
+  cursor: 'Look at an option — the circle follows your eyes. Close your eyes until the bar fills, then open them to choose.',
 };
+
+const MODE_LABELS = { scan: 'Scan mode', gaze: 'Gaze mode', cursor: 'Cursor mode' };
 
 function trackingLabel(input, tracker, face, people, resting) {
   if (resting) return { text: 'Resting', tone: 'ok' };
@@ -95,11 +99,12 @@ export default function Board({ bed, input, settings, calibration, onSettingsCha
     holdMs,
   });
   const faceLost = input === 'camera' && tracker.state === 'running' && face === 'lost';
-  const gazeNeedsCalibration = input === 'camera' && mode === 'gaze' && !calibration?.dirs;
+  const gazeNeedsCalibration = input === 'camera' && (mode === 'gaze' || mode === 'cursor') && !calibration?.dirs;
   const status = trackingLabel(input, tracker, face, people, resting);
 
   /* ---------- Actions ---------- */
 
+  const boardRef = useRef(null);
   const blinkTimes = useRef([]);
   const wakeTimes = useRef([]);
 
@@ -169,6 +174,13 @@ export default function Board({ bed, input, settings, calibration, onSettingsCha
 
       case 'rest':
         if (phase.name === 'idle' && !resting) enterRest();
+        break;
+
+      case 'hover':
+        // Cursor mode: the option under the cursor becomes the highlighted one,
+        // except while the eyes are closing (so the choice stays put).
+        if (resting || mode !== 'cursor' || hold.state !== 'open') break;
+        if (phase.name === 'idle' || phase.name === 'followup') setIndex(e.index);
         break;
 
       case 'move':
@@ -294,6 +306,8 @@ export default function Board({ bed, input, settings, calibration, onSettingsCha
   }
 
   const highlightOn = (phase.name === 'idle' || phase.name === 'followup') && !resting;
+  const showCursor =
+    mode === 'cursor' && !resting && highlightOn && (input === 'keyboard' || (tracker.state === 'running' && calibration?.dirs));
 
   return (
     <div className="bedside">
@@ -304,7 +318,7 @@ export default function Board({ bed, input, settings, calibration, onSettingsCha
           <span className="bedside-name">{bed.patient}</span>
         </div>
         <div className="bedside-tools">
-          <span className="pill">{mode === 'scan' ? 'Scan mode' : 'Gaze mode'}</span>
+          <span className="pill">{MODE_LABELS[mode] ?? 'Scan mode'}</span>
           <span className="pill">
             <span className={`dot dot-${status.tone}`} /> {status.text}
           </span>
@@ -318,7 +332,7 @@ export default function Board({ bed, input, settings, calibration, onSettingsCha
       {instruction}
 
       <main className="board-wrap">
-        <div className={`board ${followUp ? 'board-followup' : ''}`} style={{ '--cols': GRID_COLUMNS, '--rows': rows }}>
+        <div ref={boardRef} className={`board ${followUp ? 'board-followup' : ''}`} style={{ '--cols': GRID_COLUMNS, '--rows': rows }}>
           {items.map((item, i) => (
             <Tile
               key={item.id}
@@ -348,11 +362,19 @@ export default function Board({ bed, input, settings, calibration, onSettingsCha
                   <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move &middot;{' '}
                 </>
               )}
+              {mode === 'cursor' && <>move the mouse to point &middot; </>}
               hold &amp; release <kbd>Space</kbd> to choose &middot; tap 4&times; for emergency
             </span>
           )}
         </span>
       </footer>
+
+      {showCursor && (
+        <GazeCursor
+          key={`${phase.name}-${phase.step ?? 0}`}
+          boardRef={boardRef}
+          followMouse={input === 'keyboard'} onHover={(i) => handler.current({ type: 'hover', index: i })} />
+      )}
 
       {resting && (
         <RestOverlay wakeCount={wakeCount} blinkEmergency={settings.blinkEmergency} onWake={wake} />

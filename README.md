@@ -22,7 +22,7 @@ No webcam? Choose **Keyboard** in setup: arrow keys move, hold and release **Spa
 
 | To… | Do this |
 |---|---|
-| Move the highlight | **Scan mode:** wait — options light up one by one. **Gaze mode:** look left / right / up / down. |
+| Move the highlight | **Scan mode:** wait — options light up one by one. **Gaze mode:** look left / right / up / down. **Cursor mode:** a circle follows the eyes; the option under it lights up. |
 | Choose | Close the eyes until the bar fills, then **open** them. |
 | Cancel a message being sent | Choose again during the 2.5 s "Sending…" step. |
 | Call for help from anywhere | **Blink quickly 4 times** (opens *Emergency*, still cancellable). |

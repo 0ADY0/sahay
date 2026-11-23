@@ -131,10 +131,11 @@ export default function SettingsPanel({
 
         <Segmented
           label="How the patient moves"
-          hint="Scan: options light up one by one. Gaze: the patient looks to move."
+          hint="Scan: options light up one by one. Gaze: look left/right/up/down to step between options. Cursor: a circle follows the eyes and the option under it lights up. Gaze and Cursor need calibration."
           options={[
             { id: 'scan', label: 'Scan' },
             { id: 'gaze', label: 'Gaze' },
+            { id: 'cursor', label: 'Cursor' },
           ]}
           value={settings.mode}
           onChange={(mode) => onChange({ mode })}

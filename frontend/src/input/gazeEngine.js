@@ -21,11 +21,19 @@
     chooses anything by accident. The first BLINK_GRACE_MS of a closure is not
     shown, so ordinary blinking causes no flicker on screen.
 
+  Pointing (cursor mode)
+    The same calibration also gives a continuous position: how far towards
+    left/right and up/down the patient is looking, mapped back onto the
+    screen through the points where the calibration dot was shown.
+    -> { type: 'point', x, y } in % of the screen, every frame the eyes are open.
+    The point is frozen while the eyes are closed, so closing them to choose
+    does not drag the cursor off the option.
+
   'hold' events describe the closure for the UI:
     { type: 'hold', progress: 0..1, state: 'open' | 'filling' | 'ready' | 'over' }
 */
 
-import { CHOOSE_WINDOW_MS, REST_CLOSE_MS } from '../config/settings';
+import { CALIB_POINTS, CHOOSE_WINDOW_MS, REST_CLOSE_MS } from '../config/settings';
 
 export const AXES = ['irisX', 'irisY', 'eyeX', 'eyeY', 'yaw', 'pitch'];
 const MASKS = {
@@ -45,6 +53,21 @@ const BLINK_GRACE_MS = 150;
 const FACE_LOST_MS = 1000;
 const SMOOTHING = 0.3; // pupil positions jitter a little; smooth them slightly
 const MIN_BLINK_MS = 30;
+const POINT_SMOOTHING = 0.25; // extra smoothing for the cursor, which is more sensitive to jitter
+
+const lerpSide = (t, centre, neg, pos) => centre + (t >= 0 ? t * (pos - centre) : -t * (neg - centre));
+const clampPct = (v) => Math.max(0, Math.min(100, v));
+
+/** Gaze -> screen position in %, using where the calibration dot was shown. */
+export function gazePoint(scores) {
+  const tx = (scores.right - scores.left) / 2; // -1 = calibrated left, +1 = calibrated right
+  const ty = (scores.down - scores.up) / 2; // -1 = calibrated up, +1 = calibrated down
+  const P = CALIB_POINTS;
+  return {
+    x: clampPct(lerpSide(tx, P.center[0], P.left[0], P.right[0])),
+    y: clampPct(lerpSide(ty, P.center[1], P.up[1], P.down[1])),
+  };
+}
 
 export const toVector = (f) => AXES.map((k) => f[k]);
 
@@ -100,6 +123,7 @@ export class GazeEngine {
     this.lastProgress = 0;
     this.lastState = 'open';
     this.restFired = false;
+    this.point = null;
   }
 
   /**
@@ -159,6 +183,15 @@ export class GazeEngine {
 
     if (canLook) {
       const scores = directionScores(this.smooth, this.calibration);
+
+      const target = gazePoint(scores);
+      this.point = this.point
+        ? {
+            x: this.point.x + POINT_SMOOTHING * (target.x - this.point.x),
+            y: this.point.y + POINT_SMOOTHING * (target.y - this.point.y),
+          }
+        : target;
+      events.push({ type: 'point', x: this.point.x, y: this.point.y });
       let best = 'center';
       let bestScore = 0;
       for (const dir of DIRS) {

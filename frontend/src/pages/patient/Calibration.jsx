@@ -3,6 +3,7 @@ import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, CircleAlert, Eye, Rot
 import { onFrame, startTracker, useTrackerStatus } from '../../input/faceTracker';
 import { AXES, maskFor, toVector } from '../../input/gazeEngine';
 import { CALIBRATION_VERSION } from '../../lib/calibrationStore';
+import { CALIB_POINTS } from '../../config/settings';
 import { useCameraInput } from '../../input/useCameraInput';
 import { speak } from '../../lib/speech';
 import { tone } from '../../lib/sound';
@@ -16,11 +17,11 @@ import CameraPreview from './CameraPreview';
 */
 
 const STEPS = [
-  { id: 'center', text: 'Look at the dot', say: 'Look at the dot in the middle of the screen.', x: 50, y: 52, settle: 2200 },
-  { id: 'left', text: 'Look to the left', say: 'Now look to the left.', x: 5, y: 52, settle: 1400 },
-  { id: 'right', text: 'Look to the right', say: 'Now look to the right.', x: 95, y: 52, settle: 1400 },
-  { id: 'up', text: 'Look up', say: 'Now look up.', x: 50, y: 14, settle: 1400 },
-  { id: 'down', text: 'Look down', say: 'Now look down.', x: 50, y: 92, settle: 1400 },
+  { id: 'center', text: 'Look at the dot', say: 'Look at the dot in the middle of the screen.', x: CALIB_POINTS.center[0], y: CALIB_POINTS.center[1], settle: 2200 },
+  { id: 'left', text: 'Look to the left', say: 'Now look to the left.', x: CALIB_POINTS.left[0], y: CALIB_POINTS.left[1], settle: 1400 },
+  { id: 'right', text: 'Look to the right', say: 'Now look to the right.', x: CALIB_POINTS.right[0], y: CALIB_POINTS.right[1], settle: 1400 },
+  { id: 'up', text: 'Look up', say: 'Now look up.', x: CALIB_POINTS.up[0], y: CALIB_POINTS.up[1], settle: 1400 },
+  { id: 'down', text: 'Look down', say: 'Now look down.', x: CALIB_POINTS.down[0], y: CALIB_POINTS.down[1], settle: 1400 },
   { id: 'closed', text: 'Close your eyes', sub: 'Open them when you hear the tone', say: 'Close your eyes, and open them when you hear the tone.', x: 50, y: 52, settle: 2600 },
 ];
 // Eyes-only patients are reminded to keep the head still, so only the eyes are learned.
